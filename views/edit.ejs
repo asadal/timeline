@@ -7,6 +7,7 @@
     <!-- Tailwind CSS 설정 -->
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -15,9 +16,12 @@
             },
           },
         },
+        plugins: [],
       }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
     <!-- 외부 CSS 파일 연결 -->
     <link href="/css/styles.css" rel="stylesheet">
 </head>
@@ -46,9 +50,9 @@
                 <div class="mb-4">
                     <label for="image" class="block text-gray-700 dark:text-gray-300 mb-2">이미지 업로드</label>
                     <% if (timeline.image && timeline.image.startsWith('/images/')) { %>
-                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2"> <!-- 최대 가로폭 500px -->
+                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2">
                     <% } else if (timeline.image) { %>
-                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2"> <!-- 최대 가로폭 500px -->
+                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2">
                     <% } %>
                     <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                 </div>
@@ -56,6 +60,12 @@
                     <label for="external_image" class="block text-gray-700 dark:text-gray-300 mb-2">외부 이미지 URL</label>
                     <input type="url" id="external_image" name="external_image" value="<%= timeline.image && !timeline.image.startsWith('/images/') ? timeline.image : '' %>" placeholder="https://example.com/image.jpg" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">이미지 업로드와 외부 이미지 URL 중 하나만 사용하세요. 외부 이미지 URL이 입력된 경우 업로드된 이미지는 무시됩니다.</p>
+                </div>
+                <!-- **'더 알아보기' 링크 추가 필드** -->
+                <div class="mb-4">
+                    <label for="link" class="block text-gray-700 dark:text-gray-300 mb-2">더 알아보기 링크</label>
+                    <input type="url" id="link" name="link" value="<%= timeline.link || '' %>" placeholder="https://example.com" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">타임라인 항목에 대한 자세한 정보를 제공하는 링크를 입력하세요.</p>
                 </div>
                 <div class="mb-4 flex items-center">
                     <input type="checkbox" id="show_time" name="show_time" <%= timeline.show_time ? 'checked' : '' %> class="mr-2">

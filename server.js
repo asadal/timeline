@@ -1,43 +1,65 @@
 // server.js
 
 const express = require('express');
-const bodyParser = require('body-parser');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const multer = require('multer');
 const sharp = require('sharp');
+const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// 데이터베이스 파일 경로
-const DB_PATH = path.join(__dirname, 'db', 'timeline.db');
+// 설정 데이터 기본 값
+const DEFAULT_SETTINGS = {
+    site_title: '타임라인 웹사이트',
+    site_description: '웹사이트 설명을 입력하세요.'
+};
 
-// 데이터베이스 디렉터리 및 파일이 존재하지 않으면 생성
-const dbDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-    console.log(`Created directory: ${dbDir}`);
-}
+// EJS 템플릿 설정
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-if (!fs.existsSync(DB_PATH)) {
-    fs.closeSync(fs.openSync(DB_PATH, 'w'));
-    console.log(`Created database file: ${DB_PATH}`);
-}
+// 정적 파일 서비스 (CSS, 이미지 등)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// 데이터베이스 연결
-const db = new sqlite3.Database(DB_PATH, (err) => {
+// Body Parser 미들웨어
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Multer 설정 (이미지 업로드)
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, 'public', 'images');
+        // 디렉토리가 없으면 생성
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        // 파일 이름을 고유하게 생성 (타임스탬프 사용)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage: storage });
+
+// SQLite 데이터베이스 연결
+const dbPath = path.join(__dirname, 'db', 'timeline.db');
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Database connection error:', err.message);
+        console.error('Error opening database:', err.message);
     } else {
-        console.log('Connected to the timeline database.');
+        console.log('Connected to SQLite database.');
     }
 });
 
 // 데이터베이스 테이블 생성 및 마이그레이션
 db.serialize(() => {
-    // 타임라인 테이블 생성 (show_time 필드 포함)
+    // 타임라인 테이블 생성 (link 필드 포함)
     db.run(`CREATE TABLE IF NOT EXISTS timeline (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
@@ -54,7 +76,7 @@ db.serialize(() => {
         }
     });
 
-    // 설정 테이블 생성 (웹사이트 제목과 설명 포함)
+    // 설정 테이블 생성
     db.run(`CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY CHECK (id = 1),
         site_title TEXT DEFAULT '타임라인 웹사이트',
@@ -68,7 +90,7 @@ db.serialize(() => {
     });
 
     // 설정 테이블에 기본 행 추가 (존재하지 않을 경우)
-    db.run(`INSERT OR IGNORE INTO settings (id, site_title, site_description) VALUES (1, '타임라인 웹사이트', '웹사이트 설명을 입력하세요.')`, (err) => {
+    db.run(`INSERT OR IGNORE INTO settings (id, site_title, site_description) VALUES (1, ?, ?)`, [DEFAULT_SETTINGS.site_title, DEFAULT_SETTINGS.site_description], (err) => {
         if (err) {
             console.error('Error inserting default settings:', err.message);
         } else {
@@ -106,38 +128,16 @@ db.serialize(() => {
     });
 });
 
-// 미들웨어 설정
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
-
-// 파일 업로드 설정 (이미지 저장)
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const imagesDir = path.join(__dirname, 'public', 'images');
-        if (!fs.existsSync(imagesDir)) {
-            fs.mkdirSync(imagesDir, { recursive: true });
-            console.log(`Created directory for images: ${imagesDir}`);
-        }
-        cb(null, imagesDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
-
-// 날짜 및 시간 형식 검증 함수
-const validateDatetime = (datetime) => {
-    // 'YYYY-MM-DD HH:MM' 또는 'YYYY-MM-DDTHH:MM' 형식을 검증하는 정규식
-    const regex = /^\d{4}-\d{2}-\d{2}(?: |\T)\d{2}:\d{2}$/;
+// 유효한 날짜 및 시간 형식인지 검사하는 함수
+function validateDatetime(datetime) {
+    // YYYY-MM-DD HH:MM 형식 검사 (간단한 정규식)
+    const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
     return regex.test(datetime);
-};
+}
 
-// 어드민 페이지 렌더링
+// **1. GET /admin**: 어드민 페이지 렌더링
 app.get('/admin', (req, res) => {
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`; // 변경된 부분: ASC로 정렬
+    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`;
     const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
 
     db.serialize(() => {
@@ -161,12 +161,14 @@ app.get('/admin', (req, res) => {
     });
 });
 
-// 설정 업데이트 라우트
+// **2. POST /admin/update-settings**: 웹사이트 설정 업데이트
 app.post('/admin/update-settings', (req, res) => {
     const { site_title, site_description } = req.body;
 
     const sql = `UPDATE settings SET site_title = ?, site_description = ? WHERE id = 1`;
-    db.run(sql, [site_title, site_description], function(err) {
+    const params = [site_title, site_description];
+
+    db.run(sql, params, function(err) {
         if (err) {
             console.error('Error updating settings:', err.message);
             res.status(500).send('Database error');
@@ -176,7 +178,7 @@ app.post('/admin/update-settings', (req, res) => {
     });
 });
 
-// 타임라인 데이터 추가 라우트 수정
+// **3. POST /admin/add**: 새로운 타임라인 항목 추가
 app.post('/admin/add', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, show_time, external_image } = req.body;
     let image = '';
@@ -189,10 +191,12 @@ app.post('/admin/add', upload.single('image'), async (req, res) => {
             // 외부 이미지 URL이 없고 파일이 업로드된 경우
             const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
             await sharp(req.file.path)
-                .resize(800) // 최대 너비 800px로 조절
+                .resize({ width: 500, withoutEnlargement: true })
                 .jpeg({ quality: 80 })
                 .toFile(optimizedImagePath);
             image = `/images/optimized_${req.file.filename}`;
+            // 업로드된 원본 이미지 삭제 (선택 사항)
+            fs.unlinkSync(req.file.path);
         } else {
             // 이미지가 제공되지 않은 경우
             image = '';
@@ -222,25 +226,28 @@ app.post('/admin/add', upload.single('image'), async (req, res) => {
     }
 });
 
-// 수정 폼 렌더링
+// **4. GET /admin/edit/:id**: 특정 타임라인 항목 수정 폼 렌더링
 app.get('/admin/edit/:id', (req, res) => {
     const id = req.params.id;
     const sql = `SELECT * FROM timeline WHERE id = ?`;
+
     db.get(sql, [id], (err, row) => {
         if (err) {
-            console.error('Error fetching timeline entry:', err.message);
+            console.error('Error fetching timeline item:', err.message);
             res.status(500).send('Database error');
             return;
         }
+
         if (!row) {
-            res.status(404).send('Timeline entry not found');
+            res.status(404).send('Timeline item not found');
             return;
         }
+
         res.render('edit', { timeline: row });
     });
 });
 
-// 타임라인 데이터 수정 라우트 수정
+// **5. POST /admin/edit/:id**: 특정 타임라인 항목 업데이트
 app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
     const id = req.params.id;
     const { datetime, title, body, link, show_time, external_image } = req.body;
@@ -254,10 +261,12 @@ app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
             // 외부 이미지 URL이 없고 파일이 업로드된 경우
             const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
             await sharp(req.file.path)
-                .resize(800)
+                .resize({ width: 500, withoutEnlargement: true })
                 .jpeg({ quality: 80 })
                 .toFile(optimizedImagePath);
             image = `/images/optimized_${req.file.filename}`;
+            // 업로드된 원본 이미지 삭제 (선택 사항)
+            fs.unlinkSync(req.file.path);
         } // else, 이미지 변경 없음 (기존 이미지 유지)
 
         const formattedDatetime = datetime.replace('T', ' ');
@@ -284,13 +293,14 @@ app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
     }
 });
 
-// 타임라인 데이터 삭제
+// **6. POST /admin/delete/:id**: 특정 타임라인 항목 삭제
 app.post('/admin/delete/:id', (req, res) => {
     const id = req.params.id;
     const sql = `DELETE FROM timeline WHERE id = ?`;
+
     db.run(sql, [id], function(err) {
         if (err) {
-            console.error('Error deleting timeline:', err.message);
+            console.error('Error deleting timeline item:', err.message);
             res.status(500).send('Database error');
             return;
         }
@@ -298,9 +308,9 @@ app.post('/admin/delete/:id', (req, res) => {
     });
 });
 
-// 메인 페이지 렌더링
+// **7. GET /**: 메인 타임라인 페이지 렌더링
 app.get('/', (req, res) => {
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`; // 변경된 부분: ASC로 정렬
+    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`;
     const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
 
     db.serialize(() => {
@@ -324,7 +334,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// 서버 시작
+// **8. 서버 시작**
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
