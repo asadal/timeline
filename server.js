@@ -137,7 +137,7 @@ const validateDatetime = (datetime) => {
 
 // 어드민 페이지 렌더링
 app.get('/admin', (req, res) => {
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date DESC`;
+    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`; // 변경된 부분: ASC로 정렬
     const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
 
     db.serialize(() => {
@@ -181,46 +181,45 @@ app.post('/admin/add', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, show_time, external_image } = req.body;
     let image = '';
 
-    if (external_image && external_image.trim() !== '') {
-        // 외부 이미지 URL이 제공된 경우
-        image = external_image.trim();
-    } else if (req.file) {
-        // 외부 이미지 URL이 없고 파일이 업로드된 경우
-        const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
-        try {
+    try {
+        if (external_image && external_image.trim() !== '') {
+            // 외부 이미지 URL이 제공된 경우
+            image = external_image.trim();
+        } else if (req.file) {
+            // 외부 이미지 URL이 없고 파일이 업로드된 경우
+            const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
             await sharp(req.file.path)
                 .resize(800) // 최대 너비 800px로 조절
                 .jpeg({ quality: 80 })
                 .toFile(optimizedImagePath);
             image = `/images/optimized_${req.file.filename}`;
-        } catch (err) {
-            console.error('Image processing error:', err.message);
-            res.status(500).send('Image processing error');
-            return;
+        } else {
+            // 이미지가 제공되지 않은 경우
+            image = '';
         }
-    } else {
-        // 이미지가 제공되지 않은 경우
-        image = '';
-    }
 
-    const formattedDatetime = datetime.replace('T', ' ');
+        const formattedDatetime = datetime.replace('T', ' ');
 
-    // 유효성 검사
-    if (!validateDatetime(formattedDatetime)) {
-        return res.status(400).send('잘못된 날짜 및 시간 형식입니다.');
-    }
-
-    const sql = `INSERT INTO timeline (date, title, body, image, link, show_time) VALUES (?, ?, ?, ?, ?, ?)`;
-    const params = [formattedDatetime, title, body, image, link, show_time ? 1 : 0];
-
-    db.run(sql, params, function(err) {
-        if (err) {
-            console.error('Error adding timeline:', err.message);
-            res.status(500).send('Database error');
-            return;
+        // 유효성 검사
+        if (!validateDatetime(formattedDatetime)) {
+            throw new Error('잘못된 날짜 및 시간 형식입니다.');
         }
-        res.redirect('/admin');
-    });
+
+        const sql = `INSERT INTO timeline (date, title, body, image, link, show_time) VALUES (?, ?, ?, ?, ?, ?)`;
+        const params = [formattedDatetime, title, body, image, link, show_time ? 1 : 0];
+
+        db.run(sql, params, function(err) {
+            if (err) {
+                console.error('Error adding timeline:', err.message);
+                res.status(500).send(`Database error: ${err.message}`);
+                return;
+            }
+            res.redirect('/admin');
+        });
+    } catch (error) {
+        console.error('Unexpected error:', error.message);
+        res.status(500).send(`Unexpected error: ${error.message}`);
+    }
 });
 
 // 수정 폼 렌더링
@@ -247,43 +246,42 @@ app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, show_time, external_image } = req.body;
     let image = req.body.currentImage; // 기존 이미지 경로
 
-    if (external_image && external_image.trim() !== '') {
-        // 외부 이미지 URL이 제공된 경우
-        image = external_image.trim();
-    } else if (req.file) {
-        // 외부 이미지 URL이 없고 파일이 업로드된 경우
-        const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
-        try {
+    try {
+        if (external_image && external_image.trim() !== '') {
+            // 외부 이미지 URL이 제공된 경우
+            image = external_image.trim();
+        } else if (req.file) {
+            // 외부 이미지 URL이 없고 파일이 업로드된 경우
+            const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
             await sharp(req.file.path)
                 .resize(800)
                 .jpeg({ quality: 80 })
                 .toFile(optimizedImagePath);
             image = `/images/optimized_${req.file.filename}`;
-        } catch (err) {
-            console.error('Image processing error:', err.message);
-            res.status(500).send('Image processing error');
-            return;
+        } // else, 이미지 변경 없음 (기존 이미지 유지)
+
+        const formattedDatetime = datetime.replace('T', ' ');
+
+        // 유효성 검사
+        if (!validateDatetime(formattedDatetime)) {
+            throw new Error('잘못된 날짜 및 시간 형식입니다.');
         }
-    } // else, 이미지 변경 없음 (기존 이미지 유지)
 
-    const formattedDatetime = datetime.replace('T', ' ');
+        const sql = `UPDATE timeline SET date = ?, title = ?, body = ?, image = ?, link = ?, show_time = ? WHERE id = ?`;
+        const params = [formattedDatetime, title, body, image, link, show_time ? 1 : 0, id];
 
-    // 유효성 검사
-    if (!validateDatetime(formattedDatetime)) {
-        return res.status(400).send('잘못된 날짜 및 시간 형식입니다.');
+        db.run(sql, params, function(err) {
+            if (err) {
+                console.error('Error updating timeline:', err.message);
+                res.status(500).send(`Database error: ${err.message}`);
+                return;
+            }
+            res.redirect('/admin');
+        });
+    } catch (error) {
+        console.error('Unexpected error:', error.message);
+        res.status(500).send(`Unexpected error: ${error.message}`);
     }
-
-    const sql = `UPDATE timeline SET date = ?, title = ?, body = ?, image = ?, link = ?, show_time = ? WHERE id = ?`;
-    const params = [formattedDatetime, title, body, image, link, show_time ? 1 : 0, id];
-
-    db.run(sql, params, function(err) {
-        if (err) {
-            console.error('Error updating timeline:', err.message);
-            res.status(500).send('Database error');
-            return;
-        }
-        res.redirect('/admin');
-    });
 });
 
 // 타임라인 데이터 삭제
@@ -302,7 +300,7 @@ app.post('/admin/delete/:id', (req, res) => {
 
 // 메인 페이지 렌더링
 app.get('/', (req, res) => {
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date DESC`;
+    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`; // 변경된 부분: ASC로 정렬
     const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
 
     db.serialize(() => {
