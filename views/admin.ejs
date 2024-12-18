@@ -114,10 +114,22 @@
                     <textarea id="body" name="body" rows="4" required class="w-full font-noto custom-textarea focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
                 </div>
                 
-                <!-- 이미지 업로드 -->
+                <!-- 이미지 업로드 및 외부 URL 입력 -->
                 <div class="mb-6">
-                    <label for="image" class="block text-gray-700 mb-2">이미지</label>
-                    <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <label class="block text-gray-700 mb-2">이미지</label>
+                    <div class="flex flex-col md:flex-row md:space-x-4">
+                        <!-- 파일 업로드 -->
+                        <div class="mb-4 md:mb-0 md:flex-1">
+                            <label for="image" class="block text-gray-700 mb-2">이미지 업로드</label>
+                            <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <!-- 외부 이미지 URL -->
+                        <div class="md:flex-1">
+                            <label for="external_image" class="block text-gray-700 mb-2">외부 이미지 URL</label>
+                            <input type="url" id="external_image" name="external_image" class="w-full font-noto custom-input focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">이미지 업로드와 외부 이미지 URL 중 하나만 사용하세요. 둘 다 입력 시 외부 이미지 URL이 우선 적용됩니다.</p>
                 </div>
                 
                 <!-- 링크 입력 -->

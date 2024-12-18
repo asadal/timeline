@@ -6,12 +6,28 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const multer = require('multer');
 const sharp = require('sharp');
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
 
+// 데이터베이스 파일 경로
+const DB_PATH = path.join(__dirname, 'db', 'timeline.db');
+
+// 데이터베이스 디렉터리 및 파일이 존재하지 않으면 생성
+const dbDir = path.dirname(DB_PATH);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log(`Created directory: ${dbDir}`);
+}
+
+if (!fs.existsSync(DB_PATH)) {
+    fs.closeSync(fs.openSync(DB_PATH, 'w'));
+    console.log(`Created database file: ${DB_PATH}`);
+}
+
 // 데이터베이스 연결
-const db = new sqlite3.Database('./db/timeline.db', (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Database connection error:', err.message);
     } else {
@@ -19,7 +35,7 @@ const db = new sqlite3.Database('./db/timeline.db', (err) => {
     }
 });
 
-// 데이터베이스 테이블 생성
+// 데이터베이스 테이블 생성 및 마이그레이션
 db.serialize(() => {
     // 타임라인 테이블 생성 (show_time 필드 포함)
     db.run(`CREATE TABLE IF NOT EXISTS timeline (
@@ -30,17 +46,35 @@ db.serialize(() => {
         image TEXT,
         link TEXT,
         show_time INTEGER DEFAULT 0
-    )`);
+    )`, (err) => {
+        if (err) {
+            console.error('Error creating timeline table:', err.message);
+        } else {
+            console.log('Timeline table is ready.');
+        }
+    });
 
     // 설정 테이블 생성 (웹사이트 제목과 설명 포함)
     db.run(`CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY CHECK (id = 1),
         site_title TEXT DEFAULT '타임라인 웹사이트',
         site_description TEXT DEFAULT '웹사이트 설명을 입력하세요.'
-    )`);
+    )`, (err) => {
+        if (err) {
+            console.error('Error creating settings table:', err.message);
+        } else {
+            console.log('Settings table is ready.');
+        }
+    });
 
     // 설정 테이블에 기본 행 추가 (존재하지 않을 경우)
-    db.run(`INSERT OR IGNORE INTO settings (id, site_title, site_description) VALUES (1, '타임라인 웹사이트', '웹사이트 설명을 입력하세요.')`);
+    db.run(`INSERT OR IGNORE INTO settings (id, site_title, site_description) VALUES (1, '타임라인 웹사이트', '웹사이트 설명을 입력하세요.')`, (err) => {
+        if (err) {
+            console.error('Error inserting default settings:', err.message);
+        } else {
+            console.log('Default settings ensured.');
+        }
+    });
 
     // 마이그레이션: settings 테이블에 site_title과 site_description 컬럼이 없는 경우 추가
     db.all(`PRAGMA table_info(settings)`, [], (err, columns) => {
@@ -80,7 +114,12 @@ app.set('view engine', 'ejs');
 // 파일 업로드 설정 (이미지 저장)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/images/');
+        const imagesDir = path.join(__dirname, 'public', 'images');
+        if (!fs.existsSync(imagesDir)) {
+            fs.mkdirSync(imagesDir, { recursive: true });
+            console.log(`Created directory for images: ${imagesDir}`);
+        }
+        cb(null, imagesDir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -137,13 +176,17 @@ app.post('/admin/update-settings', (req, res) => {
     });
 });
 
-// 타임라인 데이터 추가
+// 타임라인 데이터 추가 라우트 수정
 app.post('/admin/add', upload.single('image'), async (req, res) => {
-    const { datetime, title, body, link, show_time } = req.body;
+    const { datetime, title, body, link, show_time, external_image } = req.body;
     let image = '';
 
-    if (req.file) {
-        const optimizedImagePath = `public/images/optimized_${req.file.filename}`;
+    if (external_image && external_image.trim() !== '') {
+        // 외부 이미지 URL이 제공된 경우
+        image = external_image.trim();
+    } else if (req.file) {
+        // 외부 이미지 URL이 없고 파일이 업로드된 경우
+        const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
         try {
             await sharp(req.file.path)
                 .resize(800) // 최대 너비 800px로 조절
@@ -155,6 +198,9 @@ app.post('/admin/add', upload.single('image'), async (req, res) => {
             res.status(500).send('Image processing error');
             return;
         }
+    } else {
+        // 이미지가 제공되지 않은 경우
+        image = '';
     }
 
     const formattedDatetime = datetime.replace('T', ' ');
@@ -195,14 +241,18 @@ app.get('/admin/edit/:id', (req, res) => {
     });
 });
 
-// 타임라인 데이터 수정
+// 타임라인 데이터 수정 라우트 수정
 app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
     const id = req.params.id;
-    const { datetime, title, body, link, show_time } = req.body;
+    const { datetime, title, body, link, show_time, external_image } = req.body;
     let image = req.body.currentImage; // 기존 이미지 경로
 
-    if (req.file) {
-        const optimizedImagePath = `public/images/optimized_${req.file.filename}`;
+    if (external_image && external_image.trim() !== '') {
+        // 외부 이미지 URL이 제공된 경우
+        image = external_image.trim();
+    } else if (req.file) {
+        // 외부 이미지 URL이 없고 파일이 업로드된 경우
+        const optimizedImagePath = path.join(__dirname, 'public', 'images', `optimized_${req.file.filename}`);
         try {
             await sharp(req.file.path)
                 .resize(800)
@@ -214,7 +264,7 @@ app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
             res.status(500).send('Image processing error');
             return;
         }
-    }
+    } // else, 이미지 변경 없음 (기존 이미지 유지)
 
     const formattedDatetime = datetime.replace('T', ' ');
 
