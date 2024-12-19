@@ -4,40 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>타임라인 수정 - <%= timeline.title %></title>
-    <!-- Tailwind CSS 설정 -->
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              'gmarket': ['GmarketSansMedium', 'sans-serif'],
-              'noto': ['"Noto Sans KR"', 'sans-serif'],
-            },
-          },
-        },
-        plugins: [],
-      }
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Noto Sans KR) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
-    <!-- 외부 CSS 파일 연결 -->
-    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <div class="container mx-auto p-4">
-        <h1 class="text-4xl font-gmarket mb-6 text-center text-blue-600 dark:text-blue-400">타임라인 수정</h1>
+        <h1 class="text-4xl font-gmarket mb-6 text-center text-blue-600 dark:text-blue-400">타임라인 항목 수정</h1>
 
         <!-- 타임라인 수정 폼 -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 w-full max-w-lg mx-auto">
             <form action="/admin/edit/<%= timeline.id %>" method="POST" enctype="multipart/form-data">
-                <!-- 기존 이미지 유지 -->
-                <input type="hidden" name="currentImage" value="<%= timeline.image %>">
-                
                 <div class="mb-4">
                     <label for="datetime" class="block text-gray-700 dark:text-gray-300 mb-2">날짜 및 시간</label>
-                    <input type="datetime-local" id="datetime" name="datetime" value="<%= timeline.date.replace(' ', 'T') %>" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
+                    <input type="datetime-local" id="datetime" name="datetime" value="<%= timeline.date %>" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                 </div>
                 <div class="mb-4">
                     <label for="title" class="block text-gray-700 dark:text-gray-300 mb-2">제목</label>
@@ -48,30 +26,24 @@
                     <textarea id="body" name="body" rows="4" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"><%= timeline.body %></textarea>
                 </div>
                 <div class="mb-4">
-                    <label for="image" class="block text-gray-700 dark:text-gray-300 mb-2">이미지 업로드</label>
-                    <% if (timeline.image && timeline.image.startsWith('/images/')) { %>
-                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2">
-                    <% } else if (timeline.image) { %>
-                        <img src="<%= timeline.image %>" alt="기존 이미지" class="w-full max-w-[500px] mb-2">
-                    <% } %>
-                    <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
-                </div>
-                <div class="mb-4">
-                    <label for="external_image" class="block text-gray-700 dark:text-gray-300 mb-2">외부 이미지 URL</label>
-                    <input type="url" id="external_image" name="external_image" value="<%= timeline.image && !timeline.image.startsWith('/images/') ? timeline.image : '' %>" placeholder="https://example.com/image.jpg" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">이미지 업로드와 외부 이미지 URL 중 하나만 사용하세요. 외부 이미지 URL이 입력된 경우 업로드된 이미지는 무시됩니다.</p>
-                </div>
-                <!-- **'더 알아보기' 링크 추가 필드** -->
-                <div class="mb-4">
                     <label for="link" class="block text-gray-700 dark:text-gray-300 mb-2">더 알아보기 링크</label>
-                    <input type="url" id="link" name="link" value="<%= timeline.link || '' %>" placeholder="https://example.com" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">타임라인 항목에 대한 자세한 정보를 제공하는 링크를 입력하세요.</p>
+                    <input type="url" id="link" name="link" value="<%= timeline.link %>" placeholder="https://example.com" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
+                </div>
+                <!-- 이미지 업로드 -->
+                <div class="mb-4">
+                    <label for="image" class="block text-gray-700 dark:text-gray-300 mb-2">이미지 업로드</label>
+                    <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <!-- 외부 이미지 링크 -->
+                <div class="mb-4">
+                    <label for="external_image" class="block text-gray-700 dark:text-gray-300 mb-2">외부 이미지 링크</label>
+                    <input type="url" id="external_image" name="external_image" value="<%= timeline.image || '' %>" placeholder="https://example.com/image.jpg" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                 </div>
                 <div class="mb-4 flex items-center">
                     <input type="checkbox" id="show_time" name="show_time" <%= timeline.show_time ? 'checked' : '' %> class="mr-2">
                     <label for="show_time" class="text-gray-700 dark:text-gray-300">날짜 옆에 시간 표시</label>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">수정하기</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">수정하기</button>
             </form>
         </div>
     </div>
