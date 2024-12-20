@@ -103,7 +103,7 @@
             <% timeline.forEach(function(item) { %>
                 <li class="mb-6 border-b pb-4">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-gray-600 dark:text-gray-400 font-noto text-base sm:text-lg md:text-xl">
+                        <span class="text-gray-600 dark:text-gray-400 font-noto">
                             <% if (item.show_time) { %>
                                 <%= item.date %> <%= item.time %>
                             <% } else { %>
@@ -117,19 +117,15 @@
                             </form>
                         </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white font-gmarket mb-2 text-lg sm:text-2xl md:text-3xl">
-                        <%= item.title %>
-                    </h3>
-                    <p class="text-lg font-normal text-gray-500 dark:text-gray-400 font-noto mb-2 text-base sm:text-lg md:text-xl">
-                        <%= item.body %>
-                    </p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white font-gmarket mb-2"><%= item.title %></h3>
+                    <p class="text-lg font-normal text-gray-500 dark:text-gray-400 font-noto mb-2"><%= item.body %></p>
 
                     <% if (item.image || item.external_image) { %>
                         <div class="mb-4">
                             <% if (item.image) { %>
-                                <img src="<%= item.image %>" alt="타임라인 이미지" class="w-full max-w-full mb-2">
+                                <img src="<%= item.image %>" alt="타임라인 이미지" class="w-full max-w-[500px] mb-2">
                             <% } else if (item.external_image) { %>
-                                <img src="<%= item.external_image %>" alt="외부 이미지" class="w-full max-w-full mb-2">
+                                <img src="<%= item.external_image %>" alt="외부 이미지" class="w-full max-w-[500px] mb-2">
                             <% } %>
                         </div>
                     <% } %>
@@ -142,7 +138,6 @@
         </ul>
     <% } %>
 </div>
-
 
     </div>
 </body>
