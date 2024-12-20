@@ -29,6 +29,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
+// Vercel에서는 서버리스 환경으로 실행하므로 `module.exports`로 내보냄
+module.exports = app;
+
 // 로그인 페이지
 app.get('/login', (req, res) => {
     res.render('login');
