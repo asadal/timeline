@@ -9,12 +9,47 @@
         .font-gmarket {
             font-family: 'GmarketSans', sans-serif;
         }
+
         .font-noto {
             font-family: 'Noto Sans KR', sans-serif;
         }
+
+        /* Top 버튼 스타일 */
+        .top-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        .top-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* 설명 박스 숨김 상태 */
+        .hidden-description {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        /* 설명 박스 표시 상태 */
+        .visible-description {
+            max-height: 500px; /* 충분히 큰 값으로 설정 */
+            overflow: hidden;
+            transition: max-height 0.3s ease-in;
+        }
     </style>
 </head>
-<body class="bg-white">
+<body class="bg-white transition-colors duration-300">
 
     <div class="max-w-4xl mx-auto p-8">
         <h1 class="text-4xl font-bold text-center font-gmarket mb-6">어드민 페이지</h1>
@@ -67,15 +102,6 @@
             </form>
         </div>
 
-        <!-- CSV 파일 업로드 -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-gmarket mb-4">CSV 파일 업로드 (타임라인 일괄 등록)</h2>
-            <form action="/admin/upload-csv" method="POST" enctype="multipart/form-data">
-                <input type="file" name="csvfile" accept=".csv" required class="mb-4">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">업로드</button>
-            </form>
-        </div>
-
         <!-- 타임라인 목록 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-gmarket mb-4">타임라인 목록</h2>
@@ -108,6 +134,53 @@
             <% }); %>
         </div>
     </div>
+
+    <!-- 'Top' 버튼 -->
+    <button id="top-button" class="top-button" onclick="window.scrollTo(0, 0)">
+        Top
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 설명 박스 접기/펼치기
+            const toggleButton = document.getElementById('toggle-description');
+            const siteDescription = document.getElementById('site-description');
+
+            toggleButton.textContent = '︿'; // 초기 버튼 텍스트 설정
+
+            toggleButton.addEventListener('click', function () {
+                if (siteDescription.classList.contains('visible-description')) {
+                    siteDescription.classList.remove('visible-description');
+                    siteDescription.classList.add('hidden-description');
+                    toggleButton.textContent = '﹀';
+                } else {
+                    siteDescription.classList.remove('hidden-description');
+                    siteDescription.classList.add('visible-description');
+                    toggleButton.textContent = '︿';
+                }
+            });
+
+            // 스크롤 시 제목 고정 기능
+            const stickyHeader = document.getElementById('sticky-header');
+            const mainTitle = document.querySelector('h1');
+
+            window.addEventListener('scroll', function () {
+                const titleBottom = mainTitle.getBoundingClientRect().bottom;
+
+                if (titleBottom <= 0) {
+                    stickyHeader.classList.add('visible');
+                } else {
+                    stickyHeader.classList.remove('visible');
+                }
+            });
+
+            // 상단 제목 클릭 시 페이지 상단으로 스크롤
+            const stickyHeaderTitle = document.getElementById('sticky-header');
+            stickyHeaderTitle.addEventListener('click', function () {
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
 
 </body>
 </html>

@@ -6,21 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.0/GmarketSansLight.woff2">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 설명 박스 숨김 상태 */
-        .hidden-description {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        /* 설명 박스 표시 상태 */
-        .visible-description {
-            max-height: 500px; /* 충분히 큰 값으로 설정 */
-            overflow: hidden;
-            transition: max-height 0.3s ease-in;
-        }
-
-        /* 상단 고정 제목 스타일 */
+        /* 상단 고정 제목 바 스타일 */
         .sticky-header {
             position: fixed;
             top: 0;
@@ -51,13 +37,47 @@
         .page-content {
             margin-top: 100px; /* 상단 고정 바를 가리지 않도록 공간 확보 */
         }
+
+        /* 설명 박스 숨김 상태 */
+        .hidden-description {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        /* 설명 박스 표시 상태 */
+        .visible-description {
+            max-height: 500px; /* 충분히 큰 값으로 설정 */
+            overflow: hidden;
+            transition: max-height 0.3s ease-in;
+        }
+
+        /* Top 버튼 스타일 */
+        .top-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        .top-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
 
     <!-- 상단 고정 제목 바 -->
     <div id="sticky-header" class="sticky-header">
-        <a href="#top" class="text-xl font-bold text-gray-900 font-gmarket hover:underline">
+        <a href="javascript:void(0);" class="text-xl font-bold text-gray-900 font-gmarket hover:underline" id="sticky-header-link">
             <%= settings.site_title %>
         </a>
     </div>
@@ -77,7 +97,7 @@
                 </div>
                 <!-- 화살표 버튼 -->
                 <button id="toggle-description" class="toggle-button text-gray-600 mt-2 focus:outline-none">
-                    ▲
+                    ︿
                 </button>
             </div>
         </div>
@@ -101,7 +121,10 @@
                             <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
                         <% } %>
                         <% if (item.link) { %>
-                            <a href="<%= item.link %>" target="_blank" class="text-green-600 hover:underline">더 알아보기</a>
+                            <!-- 미니멀한 버튼 디자인을 적용한 '더 알아보기' 링크 -->
+                            <a href="<%= item.link %>" target="_blank" class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 transition-colors duration-300">
+                                더 알아보기
+                            </a>
                         <% } %>
                     </li>
                 <% }); %>
@@ -109,22 +132,28 @@
         </div>
     </div>
 
+    <!-- 'Top' 버튼 -->
+    <button id="top-button" class="top-button" onclick="window.scrollTo(0, 0)">
+        Top
+    </button>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // 설명 박스 접기/펼치기
             const toggleButton = document.getElementById('toggle-description');
             const siteDescription = document.getElementById('site-description');
 
-            toggleButton.textContent = '▲';
+            toggleButton.textContent = '︿'; // 초기 버튼 텍스트 설정
 
             toggleButton.addEventListener('click', function () {
                 if (siteDescription.classList.contains('visible-description')) {
                     siteDescription.classList.remove('visible-description');
                     siteDescription.classList.add('hidden-description');
-                    toggleButton.textContent = '▼';
+                    toggleButton.textContent = '﹀';
                 } else {
                     siteDescription.classList.remove('hidden-description');
                     siteDescription.classList.add('visible-description');
-                    toggleButton.textContent = '▲';
+                    toggleButton.textContent = '︿';
                 }
             });
 
@@ -140,6 +169,12 @@
                 } else {
                     stickyHeader.classList.remove('visible');
                 }
+            });
+
+            // 상단 제목 클릭 시 페이지 상단으로 스크롤
+            const stickyHeaderTitle = document.getElementById('sticky-header-link');
+            stickyHeaderTitle.addEventListener('click', function () {
+                window.scrollTo(0, 0);
             });
         });
     </script>
