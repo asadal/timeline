@@ -57,7 +57,6 @@ app.get('/logout', (req, res) => {
 });
 
 // 웹사이트 설정 업데이트 라우트
-// 웹사이트 설정 업데이트 라우트
 app.post('/admin/update-settings', async (req, res) => {
     const { site_title, site_description } = req.body; // 폼에서 넘어온 데이터
 
@@ -97,7 +96,7 @@ app.get('/admin', async (req, res) => {
         const formattedTimeline = timelineResult.rows.map(item => {
             const date = new Date(item.date);
             const formattedDate = date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시 ${date.getMinutes().toString().padStart(2, '0')}분`;
+            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시${date.getMinutes().toString().padStart(2, '0')}분`;
             return { ...item, formattedDate, formattedTime };
         });
         res.render('admin', { timeline: formattedTimeline, settings: settingsResult.rows[0] });
@@ -158,7 +157,7 @@ app.get('/', async (req, res) => {
         const formattedTimeline = timelineResult.rows.map(item => {
             const date = new Date(item.date);
             const formattedDate = date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시 ${date.getMinutes().toString().padStart(2, '0')}분`;
+            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시${date.getMinutes().toString().padStart(2, '0')}분`;
             return { ...item, formattedDate, formattedTime };
         });
         res.render('index', { timeline: formattedTimeline, settings: settingsResult.rows[0] });
