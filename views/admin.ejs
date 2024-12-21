@@ -122,6 +122,25 @@
             </form>
         </div>
 
+        <!-- CSV 파일 업로드 섹션 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-gmarket mb-4">CSV 파일 업로드 (타임라인 일괄 등록)</h2>
+            <form action="/admin/upload-csv" method="POST" enctype="multipart/form-data">
+                <input type="file" name="csvfile" accept=".csv" class="mb-4">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">업로드</button>
+            </form>
+
+            <!-- 안내 문구 -->
+            <p class="mt-4 text-sm text-gray-600">
+                * CSV 파일은 아래와 같은 형식으로 올려주세요.<br>
+                <code>date,title,body,image,link,show_time</code><br>
+                예시: <br>
+                <code>2024-12-16 10:30,"한동훈 국민의힘 대표 사퇴","“헌법과 민주주의를 지켰다. 그것이 진짜 보수의 정신이라고 생각한다.”",https://flexible.img.hani.co.kr/flexible/normal/970/582/imgdb/child/2024/1216/53_17343149690916_8017343144770484.jpg,https://www.hani.co.kr/arti/politics/assembly/1173283.html,0</code>
+            </p>
+        </div>
+
+
+
         <!-- 타임라인 목록 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-gmarket mb-4">타임라인 목록</h2>
