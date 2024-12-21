@@ -10,7 +10,7 @@
     <style>
         /* Gmarket Sans 폰트 적용 */
         .font-gmarket {
-            font-family: 'Gmarket Sans', sans-serif;
+            font-family: 'GmarketSans', sans-serif;
         }
 
         /* Noto Sans KR 폰트 적용 */
@@ -97,6 +97,11 @@
             width: 800px; /* 800px 고정 */
             margin: 0 auto; /* 가운데 정렬 */
         }
+        
+        /* 타임라인 항목 제목 폰트 크기 30px */
+        .timeline-title {
+            font-size: 30px; /* 제목 크기 30px로 수정 */
+        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -142,18 +147,25 @@
                                 <%= item.formattedDate %>
                             <% } %>
                         </time>
-                        <h3 class="text-2xl font-semibold text-gray-900 font-gmarket"><%= item.title %></h3>
+                        <h3 class="text-2xl font-semibold text-gray-900 font-gmarket timeline-title"><%= item.title %></h3>
                         <p class="mb-4 text-lg font-normal text-gray-500 font-noto"><%= item.body %></p>
                         <% if (item.image) { %>
-                            <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
+                            <% if (item.image.includes('youtube.com') || item.image.includes('youtu.be')) { %>
+                                <!-- 유튜브 동영상 URL이면 iframe으로 임베딩 -->
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= item.image.split('v=')[1] %>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="mb-4 w-full max-w-[500px]"></iframe>
+                            <% } else { %>
+                                <!-- 일반 이미지 처리 -->
+                                <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
+                            <% } %>
                         <% } %>
+
                         <% if (item.link) { %>
-                            <a href="<%= item.link %>" target="_blank" class="inline-flex items-center px-4 py-2 text-teal-600 border border-teal-600 rounded-md text-sm font-medium hover:bg-teal-600 hover:text-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition-colors duration-200">
-                                더 알아보기
-                                <svg class="w-3 h-3 ml-2 transform transition-transform duration-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                </svg>
-                            </a>
+                            <a href="<%= item.link %>" target="_blank" class="inline-flex items-center px-4 py-2 text-teal-600 border border-teal-600 rounded-md text-sm font-medium hover:bg-teal-600 hover:text-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition-colors duration-200 font-noto">
+                            더 알아보기
+                            <svg class="w-3 h-3 ml-2 transform transition-transform duration-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                            </svg>
+                        </a>
                         <% } %>
                     </li>
                 <% }); %>
