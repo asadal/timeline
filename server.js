@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const serverless = require('serverless-http');
 const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
@@ -135,6 +136,9 @@ app.get('/', async (req, res) => {
     }
 });
 
+// 서버리스 환경에서 실행되도록 serverless-http 사용
+module.exports.handler = serverless(app);
+
 // 타임라인 수정 페이지 (GET)
 app.get('/admin/edit/:id', async (req, res) => {
     const id = req.params.id;
@@ -217,8 +221,6 @@ app.post('/admin/upload-csv', upload.single('csvfile'), (req, res) => {
             res.status(500).send('CSV 파싱 오류가 발생했습니다.');
         });
 });
-
-
 
 app.listen(3000, () => console.log(`Server is running on http://localhost:3000`));
 
