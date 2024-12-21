@@ -14,7 +14,7 @@
             right: 0;
             background-color: rgba(255, 255, 255, 0.7); /* 70% 투명도 */
             backdrop-filter: blur(10px); /* 배경 흐림 효과 */
-            z-index: 1000;
+            z-index: 1000; /* sticky header가 다른 요소 위에 표시되도록 */
             display: none; /* 기본적으로 숨김 */
             justify-content: center;
             align-items: center;
@@ -72,7 +72,7 @@
 
         /* Bottom 버튼 위치 */
         .bottom-button {
-            bottom: 20px; /* Bottom 버튼은 아래쪽에 배치 */
+            bottom: 20px; /* Bottom 버튼은 위에서 50px 더 내려서 배치 */
         }
 
         /* 웹사이트 설명 텍스트 양쪽 정렬 */
@@ -99,6 +99,7 @@
     <!-- 웹사이트 제목 및 설명 -->
     <div id="top" class="max-w-[800px] mx-auto px-4 mt-12">
         <div class="text-center mb-4">
+            <!-- Gmarket Sans 폰트가 적용된 제목 -->
             <h1 class="text-6xl font-extrabold text-gray-900 md:text-5xl font-gmarket">
                 <%= settings.site_title %>
             </h1>
@@ -135,7 +136,6 @@
                             <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
                         <% } %>
                         <% if (item.link) { %>
-                            <!-- '더 알아보기' 버튼 -->
                             <a href="<%= item.link %>" target="_blank" class="inline-flex items-center px-4 py-2 text-teal-600 border border-teal-600 rounded-md text-sm font-medium hover:bg-teal-600 hover:text-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition-colors duration-200">
                                 더 알아보기
                                 <svg class="w-3 h-3 ml-2 transform transition-transform duration-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -155,7 +155,7 @@
     </button>
 
     <!-- 'Bottom' 버튼 -->
-    <button id="bottom-button" class="bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
+    <button id="bottom-button" class="scroll-button bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
         ∨
     </button>
 
