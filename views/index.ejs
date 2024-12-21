@@ -74,6 +74,17 @@
         .bottom-button {
             bottom: 20px; /* Bottom 버튼은 아래쪽에 배치 */
         }
+
+        /* 웹사이트 설명 텍스트 양쪽 정렬 */
+        .site-description {
+            text-align: justify;
+        }
+
+        /* 웹사이트 설명 박스 고정 가로폭 800px */
+        .description-box {
+            width: 800px; /* 800px 고정 */
+            margin: 0 auto; /* 가운데 정렬 */
+        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -93,8 +104,8 @@
             </h1>
             <!-- 설명 부분 -->
             <div class="mt-8 mb-8 flex flex-col items-center justify-center">
-                <div id="description-box" class="border p-4 bg-gray-50 rounded-md max-w-full w-full md:w-auto">
-                    <span id="site-description" class="block text-lg text-gray-600 font-noto md:text-base visible-description">
+                <div id="description-box" class="description-box border p-4 bg-gray-50 rounded-md">
+                    <span id="site-description" class="block text-lg text-gray-600 font-noto md:text-base visible-description site-description">
                         <%- settings.site_description %> <!-- 줄바꿈이 <br>으로 적용됨 -->
                     </span>
                 </div>
@@ -138,7 +149,7 @@
     </button>
 
     <!-- 'Bottom' 버튼 -->
-    <button id="bottom-button" class="scroll-button bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
+    <button id="bottom-button" class="bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
         ∨
     </button>
 
