@@ -201,7 +201,10 @@ app.post('/admin/upload-csv', upload.single('csvfile'), (req, res) => {
 
     // CSV 파일 읽기 및 파싱
     fs.createReadStream(filePath)
-        .pipe(csv({ separator: ',' })) // 기본 구분자: 쉼표
+        .pipe(csv({ 
+            separator: ',',  // 기본 구분자: 쉼표
+            quote: '"'        // 큰따옴표로 감싸진 필드를 처리
+        }))
         .on('data', (row) => {
             // 날짜가 제대로 들어오지 않으면 건너뛰기
             if (!row.date || !row.title || !row.body) {
