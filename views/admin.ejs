@@ -67,6 +67,12 @@
             overflow: hidden;
             transition: max-height 0.3s ease-in;
         }
+
+        /* CSV 파일 업로드 안내문 */
+        .csv-instructions {
+            white-space: pre-wrap; /* 줄바꿈을 자동으로 처리 */
+            word-wrap: break-word; /* 긴 문장이 화면을 벗어나지 않도록 처리 */
+        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -75,22 +81,22 @@
         <h1 class="text-4xl font-bold text-center font-gmarket mb-6">어드민 페이지</h1>
 
         <!-- 웹사이트 제목 및 설명 수정 -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-gmarket mb-4">웹사이트 설정</h2>
-            <form action="/admin/update-settings" method="POST">
-                <div class="mb-4">
-                    <label for="site_title" class="block text-gray-700">웹사이트 제목</label>
-                    <input type="text" id="site_title" name="site_title" value="<%= settings.site_title %>" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" required>
-                </div>
-                <div class="mb-4">
-                    <label for="site_description" class="block text-gray-700">웹사이트 설명</label>
-                    <textarea id="site_description" name="site_description" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="4" required><%= settings.site_description %></textarea>
-                </div>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">저장</button>
-            </form>
-        </div>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-2xl font-gmarket mb-4">웹사이트 설정</h2>
+        <form action="/admin/update-settings" method="POST">
+            <div class="mb-4">
+                <label for="site_title" class="block text-gray-700">웹사이트 제목</label>
+                <input type="text" id="site_title" name="site_title" value="<%= settings.site_title %>" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" required>
+            </div>
+            <div class="mb-4">
+                <label for="site_description" class="block text-gray-700">웹사이트 설명</label>
+                <textarea id="site_description" name="site_description" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" rows="4" required><%= settings.site_description %></textarea>
+            </div>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">저장</button>
+        </form>
+    </div>
 
-        <!-- 타임라인 추가 -->
+        <!-- 타임라인 항목 추가 -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
             <h2 class="text-2xl font-gmarket mb-4">타임라인 항목 추가</h2>
             <form action="/admin/add" method="POST" enctype="multipart/form-data">
@@ -131,15 +137,13 @@
             </form>
 
             <!-- 안내 문구 -->
-            <p class="mt-4 text-sm text-gray-600">
+            <div class="csv-instructions mt-4 text-sm text-gray-600">
                 * CSV 파일은 아래와 같은 형식으로 올려주세요.<br>
                 <code>date,title,body,image,link,show_time</code><br>
                 예시: <br>
                 <code>2024-12-16 10:30,"한동훈 국민의힘 대표 사퇴","“헌법과 민주주의를 지켰다. 그것이 진짜 보수의 정신이라고 생각한다.”",https://flexible.img.hani.co.kr/flexible/normal/970/582/imgdb/child/2024/1216/53_17343149690916_8017343144770484.jpg,https://www.hani.co.kr/arti/politics/assembly/1173283.html,0</code>
-            </p>
+            </div>
         </div>
-
-
 
         <!-- 타임라인 목록 -->
         <div class="bg-white p-6 rounded-lg shadow-md">

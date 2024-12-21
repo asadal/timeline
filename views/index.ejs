@@ -74,23 +74,6 @@
         .bottom-button {
             bottom: 20px; /* Bottom 버튼은 아래쪽에 배치 */
         }
-
-        /* '더 알아보기' 버튼 미니멀 스타일 */
-        .learn-more-btn {
-            display: inline-flex;
-            items-center;
-            padding: 8px 16px;
-            font-size: 14px;
-            color: #34d399;
-            border: 1px solid #34d399;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .learn-more-btn:hover {
-            background-color: #34d399;
-            color: white;
-        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -112,7 +95,7 @@
             <div class="mt-8 mb-8 flex flex-col items-center justify-center">
                 <div id="description-box" class="border p-4 bg-gray-50 rounded-md max-w-full w-full md:w-auto">
                     <span id="site-description" class="block text-lg text-gray-600 font-noto md:text-base visible-description">
-                        <%= settings.site_description %>
+                        <%- settings.site_description %> <!-- 줄바꿈이 <br>으로 적용됨 -->
                     </span>
                 </div>
                 <!-- 화살표 버튼 -->
@@ -141,9 +124,7 @@
                             <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
                         <% } %>
                         <% if (item.link) { %>
-                            <a href="<%= item.link %>" target="_blank" class="learn-more-btn">
-                                더 알아보기
-                            </a>
+                            <a href="<%= item.link %>" target="_blank" class="text-green-600 hover:underline">더 알아보기</a>
                         <% } %>
                     </li>
                 <% }); %>

@@ -56,6 +56,38 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/login'));
 });
 
+// 웹사이트 설정 업데이트 라우트
+// 웹사이트 설정 업데이트 라우트
+app.post('/admin/update-settings', async (req, res) => {
+    const { site_title, site_description } = req.body; // 폼에서 넘어온 데이터
+
+    // 오류가 발생하지 않도록 유효성 검사
+    if (!site_title || !site_description) {
+        return res.status(400).send('웹사이트 제목과 설명을 입력해주세요.');
+    }
+
+    // 줄바꿈을 <br> 태그로 변환
+    const formattedDescription = site_description.replace(/\n/g, '<br>');
+
+    try {
+        const updateQuery = `
+            UPDATE settings 
+            SET site_title = $1, site_description = $2 
+            WHERE id = 1
+        `;
+        const values = [site_title, formattedDescription];
+
+        // PostgreSQL에 쿼리 실행
+        await pool.query(updateQuery, values);
+
+        // 업데이트 후 어드민 페이지로 리다이렉트
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error updating settings:', err.message);
+        res.status(500).send('Database error');
+    }
+});
+
 // 어드민 페이지
 app.get('/admin', async (req, res) => {
     if (!req.session.loggedIn) return res.redirect('/login');
