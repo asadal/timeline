@@ -12,9 +12,14 @@ cd timeline
 npm init -y
 ```
 
+## PostgresQL 설치
+```
+sudo apt install postgresql postgresql-contrib
+```
+
 ## 필요한 패키지 설치
 ```
-npm install express sqlite3 body-parser ejs multer csv-parser
+npm install express sqlite3 body-parser ejs multer csv-parser pg
 ```
 
 ## 폴더 구조 설정

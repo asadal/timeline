@@ -1,288 +1,224 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
-const multer = require('multer'); // multer 추가
-const fs = require('fs');
-
+const multer = require('multer');
+const { Pool } = require('pg');
 const app = express();
-const PORT = 3000;
 
-// 데이터베이스 연결
-const db = new sqlite3.Database('./db/timeline.db', (err) => {
-    if (err) {
-        console.error('Database connection error:', err.message);
-    } else {
-        console.log('Connected to the timeline database.');
-    }
+// PostgreSQL 연결 풀 설정
+const pool = new Pool({
+    user: process.env.PGUSER || 'timeline_user',
+    host: process.env.PGHOST || 'localhost',
+    database: process.env.PGDATABASE || 'timeline_db',
+    password: process.env.PGPASSWORD || 'your_secure_password',
+    port: process.env.PGPORT || 5432,
 });
 
 // 세션 설정
 app.use(session({
-    secret: 'your-secret-key', // 비밀 키 설정
+    secret: 'your-secret-key',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
 }));
 
+// 미들웨어
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
-// Vercel에서는 서버리스 환경으로 실행하므로 `module.exports`로 내보냄
-module.exports = app;
+// 파일 업로드 설정
+const storage = multer.diskStorage({
+    destination: './uploads',
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    },
+});
+const upload = multer({ storage });
 
 // 로그인 페이지
-app.get('/login', (req, res) => {
-    res.render('login');
-});
+app.get('/login', (req, res) => res.render('login'));
 
 // 로그인 처리
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-
-    // 여기에 데이터베이스나 다른 방식으로 로그인 검증을 추가할 수 있습니다
     if (username === 'admin' && password === 'gksrufp') {
-        req.session.loggedIn = true;  // 세션에 로그인 정보 저장
-        return res.redirect('/admin');  // 어드민 페이지로 리다이렉트
-    } else {
-        return res.send('Invalid username or password');
+        req.session.loggedIn = true;
+        return res.redirect('/admin');
     }
-});
-
-// 이미지 업로드 설정 (파일 저장 경로와 파일명 설정)
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './uploads/'); // 'uploads' 폴더에 저장
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름을 현재 시간과 확장자 기반으로 설정
-    }
-});
-const upload = multer({ storage: storage });
-
-// 어드민 페이지 (로그인된 사용자만 접근 가능)
-app.get('/admin', (req, res) => {
-    if (!req.session.loggedIn) {
-        return res.redirect('/login');  // 로그인하지 않았다면 로그인 페이지로 리다이렉트
-    }
-
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`;
-    const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
-
-    db.serialize(() => {
-        db.all(sqlTimeline, [], (err, rows) => {
-            if (err) {
-                console.error('Error fetching timeline:', err.message);
-                res.status(500).send('Database error');
-                return;
-            }
-
-            db.get(sqlSettings, [], (err, settings) => {
-                if (err) {
-                    console.error('Error fetching settings:', err.message);
-                    res.status(500).send('Database error');
-                    return;
-                }
-
-                res.render('admin', { timeline: rows, settings: settings });
-            });
-        });
-    });
+    res.send('Invalid username or password');
 });
 
 // 로그아웃 처리
 app.get('/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/login');  // 로그아웃 후 로그인 페이지로 리다이렉트
-    });
+    req.session.destroy(() => res.redirect('/login'));
 });
 
-// 웹사이트 설정 업데이트 라우트
-app.post('/admin/update-settings', (req, res) => {
-    const { site_title, site_description } = req.body;
-
-    const sql = `UPDATE settings SET site_title = ?, site_description = ? WHERE id = 1`;
-    const params = [site_title, site_description];
-
-    db.run(sql, params, function (err) {
-        if (err) {
-            console.error('Error updating settings:', err.message);
-            res.status(500).send('Database error');
-            return;
-        }
-        res.redirect('/admin');  // 업데이트 후 어드민 페이지로 리다이렉트
-    });
-});
-
-// 타임라인 항목 추가 처리 (POST)
-app.post('/admin/add', upload.single('image'), (req, res) => {
-    const { date, time, title, body, link, external_image, show_time } = req.body;
-
-    // `date`와 `time`을 합쳐서 하나의 `datetime` 값으로 생성
-    const datetime = `${date} ${time}`; // 2024-12-17 15:00 형식으로 결합
-
-    // 이미지 파일이 업로드된 경우 처리
-    const image = req.file ? '/uploads/' + req.file.filename : external_image || '';
-
-    // `datetime` 값이 없으면 오류 처리
-    if (!datetime) {
-        console.error('Error: datetime is required');
-        return res.status(400).send('날짜와 시간을 입력해주세요.');
+// 어드민 페이지
+app.get('/admin', async (req, res) => {
+    if (!req.session.loggedIn) return res.redirect('/login');
+    try {
+        const timelineResult = await pool.query('SELECT * FROM timeline ORDER BY date ASC');
+        const settingsResult = await pool.query('SELECT site_title, site_description FROM settings WHERE id = 1');
+        const formattedTimeline = timelineResult.rows.map(item => {
+            const date = new Date(item.date);
+            const formattedDate = date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시 ${date.getMinutes().toString().padStart(2, '0')}분`;
+            return { ...item, formattedDate, formattedTime };
+        });
+        res.render('admin', { timeline: formattedTimeline, settings: settingsResult.rows[0] });
+    } catch (err) {
+        console.error('Error fetching data:', err.message);
+        res.status(500).send('Database error');
     }
-
-    // DB에 삽입할 데이터 처리
-    const sql = `INSERT INTO timeline (date, time, title, body, link, image, show_time) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    const params = [datetime.split(' ')[0], datetime.split(' ')[1], title, body, link || '', image, show_time ? 1 : 0];
-
-    db.run(sql, params, function (err) {
-        if (err) {
-            console.error('Error inserting timeline data:', err.message);
-            return res.status(500).send('Database error');
-        }
-        res.redirect('/admin');
-    });
 });
 
-// 타임라인 항목 수정 처리 (POST)
-app.post('/admin/edit/:id', upload.single('image'), (req, res) => {
-    const id = req.params.id;
+// 타임라인 항목 추가
+app.post('/admin/add', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, external_image, show_time } = req.body;
-
-    // 파일 업로드가 있으면 업로드된 이미지 경로를 사용
-    const image = req.file ? '/uploads/' + req.file.filename : external_image || '';
-
-    // `datetime` 값이 없으면 오류 처리
-    if (!datetime) {
-        console.error('Error: datetime is required');
-        return res.status(400).send('날짜와 시간을 입력해주세요.');
+    const image = req.file ? `/uploads/${req.file.filename}` : external_image || '';
+    try {
+        await pool.query(
+            `INSERT INTO timeline (date, title, body, image, link, show_time) VALUES ($1, $2, $3, $4, $5, $6)`,
+            [datetime.replace('T', ' '), title, body, image, link || '', show_time ? 1 : 0]
+        );
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error inserting timeline data:', err.message);
+        res.status(500).send('Database error');
     }
-
-    // `datetime`을 `date`와 `time`으로 분리
-    const date = datetime.split(' ')[0]; // '2024-12-17'
-    const time = datetime.split(' ')[1]; // '15:00'
-
-    const sql = `UPDATE timeline SET date = ?, time = ?, title = ?, body = ?, link = ?, image = ?, show_time = ? WHERE id = ?`;
-    const params = [date, time, title, body, link || '', image, show_time ? 1 : 0, id];
-
-    db.run(sql, params, function (err) {
-        if (err) {
-            console.error('Error updating timeline data:', err.message);
-            return res.status(500).send('Database error');
-        }
-        res.redirect('/admin'); // 수정 후 어드민 페이지로 리다이렉트
-    });
 });
 
-// 타임라인 항목 수정 페이지 (GET)
-app.get('/admin/edit/:id', (req, res) => {
-    const id = req.params.id;
-
-    // 해당 ID에 맞는 타임라인 항목 가져오기
-    const sql = `SELECT * FROM timeline WHERE id = ?`;
-    db.get(sql, [id], (err, row) => {
-        if (err) {
-            console.error('Error fetching timeline item:', err.message);
-            return res.status(500).send('Database error');
-        }
-
-        if (!row) {
-            return res.status(404).send('타임라인 항목을 찾을 수 없습니다.');
-        }
-
-        // 수정 페이지로 전달할 데이터를 렌더링
-        res.render('edit', { timeline: row });
-    });
+// 타임라인 항목 수정
+app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
+    const { datetime, title, body, link, external_image, show_time } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : external_image || '';
+    try {
+        await pool.query(
+            `UPDATE timeline SET date = $1, title = $2, body = $3, link = $4, image = $5, show_time = $6 WHERE id = $7`,
+            [datetime.replace('T', ' '), title, body, link || '', image, show_time ? 1 : 0, req.params.id]
+        );
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error updating timeline data:', err.message);
+        res.status(500).send('Database error');
+    }
 });
 
-// 타임라인 항목 삭제 처리 (POST)
-app.post('/admin/delete/:id', (req, res) => {
-    const id = req.params.id;
-
-    const sql = `DELETE FROM timeline WHERE id = ?`;
-    db.run(sql, [id], (err) => {
-        if (err) {
-            console.error('Error deleting timeline item:', err.message);
-            return res.status(500).send('Database error');
-        }
-        res.redirect('/admin'); // 삭제 후 어드민 페이지로 리다이렉트
-    });
+// 타임라인 삭제
+app.post('/admin/delete/:id', async (req, res) => {
+    try {
+        await pool.query(`DELETE FROM timeline WHERE id = $1`, [req.params.id]);
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error deleting timeline item:', err.message);
+        res.status(500).send('Database error');
+    }
 });
 
 // 메인 페이지
-app.get('/', (req, res) => {
-    const sqlTimeline = `SELECT * FROM timeline ORDER BY date ASC`;
-    const sqlSettings = `SELECT site_title, site_description FROM settings WHERE id = 1`;
-
-    db.serialize(() => {
-        db.all(sqlTimeline, [], (err, rows) => {
-            if (err) {
-                console.error('Error fetching timeline:', err.message);
-                res.status(500).send('Database error');
-                return;
-            }
-
-            db.get(sqlSettings, [], (err, settings) => {
-                if (err) {
-                    console.error('Error fetching settings:', err.message);
-                    res.status(500).send('Database error');
-                    return;
-                }
-
-                res.render('index', { timeline: rows, settings: settings });
-            });
+app.get('/', async (req, res) => {
+    try {
+        const timelineResult = await pool.query('SELECT * FROM timeline ORDER BY date ASC');
+        const settingsResult = await pool.query('SELECT site_title, site_description FROM settings WHERE id = 1');
+        const formattedTimeline = timelineResult.rows.map(item => {
+            const date = new Date(item.date);
+            const formattedDate = date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const formattedTime = `${date.getHours() >= 12 ? '오후' : '오전'} ${date.getHours() % 12 || 12}시 ${date.getMinutes().toString().padStart(2, '0')}분`;
+            return { ...item, formattedDate, formattedTime };
         });
-    });
+        res.render('index', { timeline: formattedTimeline, settings: settingsResult.rows[0] });
+    } catch (err) {
+        console.error('Error fetching data:', err.message);
+        res.status(500).send('Database error');
+    }
 });
 
-// CSV 파일 업로드 통한 타임라인 일괄 등록
+// 타임라인 수정 페이지 (GET)
+app.get('/admin/edit/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const result = await pool.query('SELECT * FROM timeline WHERE id = $1', [id]);
+        if (!result.rows.length) {
+            return res.status(404).send('타임라인 항목을 찾을 수 없습니다.');
+        }
+        res.render('edit', { timeline: result.rows[0] });
+    } catch (err) {
+        console.error('Error fetching timeline entry:', err.message);
+        res.status(500).send('Database error');
+    }
+});
+
+const fs = require('fs');
 const csv = require('csv-parser');
 
+// CSV 파일 업로드 라우트
 app.post('/admin/upload-csv', upload.single('csvfile'), (req, res) => {
     if (!req.file) {
         return res.status(400).send('CSV 파일이 업로드되지 않았습니다.');
     }
 
-    const filePath = req.file.path;
+    const filePath = req.file.path; // 업로드된 CSV 파일 경로
     const timelineData = [];
 
+    // CSV 파일 읽기 및 파싱
     fs.createReadStream(filePath)
-        .pipe(csv({ separator: ',' }))
+        .pipe(csv({ separator: ',' })) // 기본 구분자: 쉼표
         .on('data', (row) => {
-            const datetime = `${row.date} ${row.time}`;
+            // 날짜가 제대로 들어오지 않으면 건너뛰기
+            if (!row.date || !row.title || !row.body) {
+                console.error('Missing required fields in CSV row:', row);
+                return;
+            }
 
             timelineData.push({
-                date: datetime,
-                title: row.title,
-                body: row.body,
-                link: row.link || '',
-                show_time: row.show_time === '1' ? 1 : 0
+                date: row.date.trim(), // 날짜 값 처리 (앞뒤 공백 제거)
+                title: row.title.trim(),
+                body: row.body.trim(),
+                image: row.image || '', // 이미지 경로 또는 외부 URL
+                link: row.link || '',   // 링크 (없으면 빈 값)
+                show_time: row.show_time === '1' ? 1 : 0 // 시간 표시 여부
             });
         })
-        .on('end', () => {
-            db.serialize(() => {
-                const insertStmt = db.prepare(`INSERT INTO timeline (date, title, body, link, show_time) VALUES (?, ?, ?, ?, ?)`);
-                timelineData.forEach(item => {
-                    insertStmt.run([item.date, item.title, item.body, item.link, item.show_time], (err) => {
-                        if (err) {
-                            console.error('Error inserting timeline data:', err.message);
-                        }
-                    });
-                });
-                insertStmt.finalize(() => {
-                    fs.unlinkSync(filePath);  // 업로드된 파일 삭제
-                    res.redirect('/admin');
-                });
-            });
+        .on('end', async () => {
+            try {
+                // 데이터베이스에 데이터 삽입
+                const insertQuery = `
+                    INSERT INTO timeline (date, title, body, image, link, show_time)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                `;
+                for (const item of timelineData) {
+                    if (item.date && item.title && item.body) {  // 날짜가 제대로 있으면 삽입
+                        await pool.query(insertQuery, [
+                            item.date,
+                            item.title,
+                            item.body,
+                            item.image,
+                            item.link,
+                            item.show_time
+                        ]);
+                    }
+                }
+
+                // 업로드된 파일 삭제 (선택 사항)
+                fs.unlinkSync(filePath);
+                res.redirect('/admin');
+            } catch (err) {
+                console.error('Error inserting timeline data:', err.message);
+                fs.unlinkSync(filePath); // 오류 발생 시 파일 삭제
+                res.status(500).send('Database error during CSV upload');
+            }
         })
         .on('error', (err) => {
             console.error('CSV 파싱 오류:', err.message);
-            fs.unlinkSync(filePath);  // 오류 발생 시 파일 삭제
+            fs.unlinkSync(filePath); // 오류 발생 시 파일 삭제
             res.status(500).send('CSV 파싱 오류가 발생했습니다.');
         });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+
+
+app.listen(3000, () => console.log(`Server is running on http://localhost:3000`));
 
