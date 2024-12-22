@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <title><%= settings.site_title %></title>
     <!-- Gmarket Sans 폰트 로드 -->
+    <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/ungveloper/web-fonts/GmarketSans/font-face.css" />
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/ungveloper/web-fonts/GmarketSans/font-family.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+    
         /* Gmarket Sans 폰트 적용 */
         .font-gmarket {
-            font-family: 'GmarketSans', sans-serif;
+            font-family: 'GmarketSansMedium', sans-serif;
+            font-weight: 300; /* 300으로 설정 */
+        }
+
+        /* 타임라인 항목 제목 폰트 크기와 스타일 */
+        .timeline-title {
+            font-size: 30px; /* 크기 30px으로 설정 */
+            font-weight: 300;
         }
 
         /* Noto Sans KR 폰트 적용 */
@@ -96,11 +105,6 @@
         .description-box {
             width: 800px; /* 800px 고정 */
             margin: 0 auto; /* 가운데 정렬 */
-        }
-        
-        /* 타임라인 항목 제목 폰트 크기 30px */
-        .timeline-title {
-            font-size: 30px; /* 제목 크기 30px로 수정 */
         }
     </style>
 </head>
