@@ -2,81 +2,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>어드민 페이지</title>
+    <title>관리자 페이지</title>
+    <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.0/GmarketSansLight.woff2">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .font-gmarket {
-            font-family: 'GmarketSans', sans-serif;
-        }
-
-        .font-noto {
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-
-        /* Top 버튼 스타일 */
-        .top-button {
-            position: fixed;
-            bottom: 70px; /* Top 버튼은 아래쪽으로 내려서 배치 */
-            right: 20px;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
-        }
-
-        .top-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        /* Bottom 버튼 스타일 */
-        .bottom-button {
-            position: fixed;
-            bottom: 20px; /* Bottom 버튼은 위에서 50px 더 내려서 배치 */
-            right: 20px;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
-        }
-
-        .bottom-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        /* 설명 박스 숨김 상태 */
-        .hidden-description {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        /* 설명 박스 표시 상태 */
-        .visible-description {
-            max-height: 500px; /* 충분히 큰 값으로 설정 */
-            overflow: hidden;
-            transition: max-height 0.3s ease-in;
-        }
-
-        /* CSV 파일 업로드 안내문 */
-        .csv-instructions {
-            white-space: pre-wrap; /* 줄바꿈을 자동으로 처리 */
-            word-wrap: break-word; /* 긴 문장이 화면을 벗어나지 않도록 처리 */
-        }
-    </style>
 </head>
 <body class="bg-white transition-colors duration-300">
-
     <div class="max-w-4xl mx-auto p-8">
         <h1 class="text-4xl font-bold text-center font-gmarket mb-6">어드민 페이지</h1>
 
@@ -181,10 +112,10 @@
                     <% if (item.image) { %>
                         <% if (item.image.includes('youtube.com') || item.image.includes('youtu.be')) { %>
                             <!-- 유튜브 동영상 URL이면 iframe으로 임베딩 -->
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= item.image.split('v=')[1] %>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="mb-4 w-full max-w-[500px]"></iframe>
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= item.image.split('v=')[1] %>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="mb-4 w-full max-w-[300px]"></iframe>
                         <% } else { %>
                             <!-- 일반 이미지 처리 -->
-                            <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[500px]">
+                            <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[300px]">
                         <% } %>
                     <% } %>
 
@@ -197,12 +128,12 @@
     </div>
 
     <!-- 'Top' 버튼 -->
-    <button id="top-button" class="top-button" onclick="window.scrollTo(0, 0)">
+    <button id="top-button" class="scroll-button top-button" onclick="window.scrollTo(0, 0)">
         ∧
     </button>
 
     <!-- 'Bottom' 버튼 -->
-    <button id="bottom-button" class="bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
+    <button id="bottom-button" class="scroll-button bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
         ∨
     </button>
 

@@ -44,7 +44,7 @@ app.get('/login', (req, res) => res.render('login'));
 // 로그인 처리
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    if (username === 'admin' && password === 'gksrufp') {
+    if (username === 'asadal' && password === 'veritas') {
         req.session.loggedIn = true;
         return res.redirect('/admin');
     }
