@@ -112,10 +112,10 @@
                     <% if (item.image) { %>
                         <% if (item.image.includes('youtube.com') || item.image.includes('youtu.be')) { %>
                             <!-- 유튜브 동영상 URL이면 iframe으로 임베딩 -->
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= item.image.split('v=')[1] %>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="mb-4 w-full max-w-[300px]"></iframe>
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= item.image.split('v=')[1] %>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="mb-4 w-full max-w-[400px]"></iframe>
                         <% } else { %>
                             <!-- 일반 이미지 처리 -->
-                            <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[300px]">
+                            <img src="<%= item.image %>" alt="타임라인 이미지" class="mb-4 w-full max-w-[400px]">
                         <% } %>
                     <% } %>
 
