@@ -128,7 +128,7 @@
 
 /* 웹사이트 설명 텍스트 양쪽 정렬 */
 .site-description {
-    text-align: justify;
+    text-align: center;
 }
 
 /* 웹사이트 설명 박스 고정 가로폭 800px */
