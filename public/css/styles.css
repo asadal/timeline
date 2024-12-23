@@ -90,13 +90,6 @@
     color: #727272; /* 날짜 텍스트의 색상을 더 진하게 설정 */
 }
 
-/* 타임라인 제목 */
-.timeline-title {
-    font-size: 30px; /* 제목 크기 30px */
-    font-weight: 700;
-    color: #1A202C; /* 진한 텍스트 색상 */
-}
-
 /* 버튼 스타일 */
 .scroll-button {
     position: fixed;
@@ -197,6 +190,27 @@
     max-height: 500px; /* 충분히 큰 값으로 설정 */
     overflow: hidden;
     transition: max-height 0.3s ease-in;
+}
+
+/* 타임라인 선 스타일 */
+.timeline-line {
+    position: absolute;
+    width: 3px;
+    height: 100%;
+    background-color: #d1d5db; /* 기본적으로 밝은 회색 */
+    transition: background-color 0.3s ease;
+}
+
+/* 타임라인 선이 짙은 회색으로 변경되는 클래스 */
+.line-active {
+     background-color: #4b5563; /* 더 짙은 회색 */
+}
+
+/* 타임라인 제목 */
+.timeline-title {
+    font-size: 30px; /* 제목 크기 30px */
+    font-weight: 700;
+    color: #1A202C; /* 진한 텍스트 색상 */
 }
 
 
