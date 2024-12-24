@@ -40,7 +40,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // 로그인 페이지
-app.get('/login', (req, res) => res.render('login'));
+app.get('/login', (req, res) => {
+    res.render('login', { errorMessage: null });  // 초기 로딩 시 errorMessage는 null
+});
 
 // 로그인 처리
 app.post('/login', (req, res) => {
@@ -49,8 +51,11 @@ app.post('/login', (req, res) => {
         req.session.loggedIn = true;
         return res.redirect('/admin');
     }
-    res.send('Invalid username or password');
+
+    // 로그인 실패 시 errorMessage 전달
+    res.render('login', { errorMessage: '아이디 또는 비밀번호가 틀렸습니다.' });
 });
+
 
 // 로그아웃 처리
 app.get('/logout', (req, res) => {

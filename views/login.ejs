@@ -13,6 +13,13 @@
     <div class="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 class="text-3xl font-semibold text-center text-gray-900 mb-6">관리자 로그인</h2>
 
+        <!-- 로그인 실패 시 메시지 -->
+        <% if (errorMessage) { %>
+            <div class="bg-red-500 text-white font-bold p-4 rounded-lg shadow-md mb-4 text-center">
+                <p><%= errorMessage %></p>
+            </div>
+        <% } %>
+
         <!-- 로그인 폼 -->
         <form action="/login" method="POST">
             <!-- 아이디 입력 필드 -->
@@ -32,11 +39,8 @@
                 로그인
             </button>
         </form>
-
-        <!-- 로그인 실패 시 메시지 -->
-        <div class="mt-4 text-center text-sm text-gray-600">
-            <p>아이디 또는 비밀번호가 틀렸습니다.</p>
-        </div>
     </div>
+
 </body>
 </html>
+
