@@ -9,6 +9,15 @@
     font-display: swap;
 }
 
+/* GmarketSansBold 폰트 정의 */
+@font-face {
+    font-family: 'GmarketSansBold';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* 폰트 적용을 위한 커스텀 클래스 */
 .custom-input, .custom-textarea {
     border: 2px solid #34d399; /* Tailwind's green-500 */
@@ -34,6 +43,12 @@
 
 .custom-button:hover {
     background-color: #059669; /* Tailwind's green-700 */
+}
+
+/* Gmarket Sans Title 폰트 적용 */
+.font-gmarket-title {
+    font-family: 'GmarketSansBold', sans-serif;
+    font-weight: 300; /* 300으로 설정 */
 }
 
 /* Gmarket Sans 폰트 적용 */
