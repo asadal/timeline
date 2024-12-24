@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>관리자 페이지</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.0/GmarketSansLight.woff2">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -107,8 +106,8 @@
                             </form>
                         </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 font-gmarket mt-2"><%= item.title %></h3>
-                    <p class="text-gray-700 font-noto"><%= item.body %></p>
+                    <h3 class="text-2xl font-semibold text-gray-900 font-gmarket mt-2"><%= item.title %></h3>
+                    <p class="text-gray-500 font-noto"><%= item.body %></p>
                     <% if (item.image) { %>
                         <% if (item.image.includes('youtube.com') || item.image.includes('youtu.be')) { %>
                             <!-- 유튜브 동영상 URL이면 iframe으로 임베딩 -->
@@ -136,49 +135,6 @@
     <button id="bottom-button" class="scroll-button bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
         ∨
     </button>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 설명 박스 접기/펼치기
-            const toggleButton = document.getElementById('toggle-description');
-            const siteDescription = document.getElementById('site-description');
-
-            toggleButton.textContent = '︿'; // 초기 버튼 텍스트 설정
-
-            toggleButton.addEventListener('click', function () {
-                if (siteDescription.classList.contains('visible-description')) {
-                    siteDescription.classList.remove('visible-description');
-                    siteDescription.classList.add('hidden-description');
-                    toggleButton.textContent = '﹀';
-                } else {
-                    siteDescription.classList.remove('hidden-description');
-                    siteDescription.classList.add('visible-description');
-                    toggleButton.textContent = '︿';
-                }
-            });
-
-            // 스크롤 시 제목 고정 기능
-            const stickyHeader = document.getElementById('sticky-header');
-            const mainTitle = document.querySelector('h1');
-
-            window.addEventListener('scroll', function () {
-                const titleBottom = mainTitle.getBoundingClientRect().bottom;
-
-                if (titleBottom <= 0) {
-                    stickyHeader.classList.add('visible');
-                } else {
-                    stickyHeader.classList.remove('visible');
-                }
-            });
-
-            // 상단 제목 클릭 시 페이지 상단으로 스크롤
-            const stickyHeaderTitle = document.getElementById('sticky-header');
-            stickyHeaderTitle.addEventListener('click', function () {
-                window.scrollTo(0, 0);
-            });
-        });
-    </script>
-
 </body>
 </html>
 
