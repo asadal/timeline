@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= settings.site_title %></title>
     <!-- Gmarket Sans 폰트 로드 -->
     <link rel="stylesheet" href="/css/styles.css">
@@ -66,6 +67,13 @@
             cursor: pointer;
             text-decoration: none;
         }
+        
+        /* 웹사이트 설명 박스 고정 가로폭 및 반응형 설정 */
+        .description-box {
+            width: 100%; /* 화면 너비에 맞춰 자동 조정 */
+            max-width: 800px; /* 최대 너비를 800px로 설정 */
+            margin: 0 auto; /* 가운데 정렬 */
+        }
     </style>
 </head>
 <body class="bg-white transition-colors duration-300">
@@ -83,15 +91,16 @@
     <!-- 웹사이트 제목 및 설명 -->
     <div id="top" class="max-w-[800px] mx-auto px-4 mt-12">
         <div class="text-center mb-4">
-            <!-- Gmarket Sans 폰트가 적용된 제목 -->
-            <h1 class="text-6xl font-extrabold text-gray-900 md:text-5xl font-gmarket">
+            <!-- 웹사이트 제목을 반응형으로 표시 -->
+            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 md:text-5xl font-gmarket">
                 <%= settings.site_title %>
             </h1>
+            
             <!-- 설명 부분 -->
             <div class="mt-8 mb-8 flex flex-col items-center justify-center">
                 <div id="description-box" class="description-box border p-4 bg-gray-50 rounded-md">
                     <span id="site-description" class="block text-lg text-gray-600 font-noto md:text-base visible-description site-description">
-                        <%- settings.site_description %> <!-- 줄바꿈이 <br>으로 적용됨 -->
+                        <%- settings.site_description %>
                     </span>
                 </div>
                 <!-- 화살표 버튼 -->
