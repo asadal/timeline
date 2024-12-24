@@ -95,57 +95,6 @@
     <button id="bottom-button" class="scroll-button bottom-button" onclick="window.scrollTo(0, document.body.scrollHeight)">
         ∨
     </button>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 설명 박스 접기/펼치기
-            const toggleButton = document.getElementById('toggle-description');
-            const siteDescription = document.getElementById('site-description');
-
-            toggleButton.textContent = '︿'; // 초기 버튼 텍스트 설정
-
-            toggleButton.addEventListener('click', function () {
-                if (siteDescription.classList.contains('visible-description')) {
-                    siteDescription.classList.remove('visible-description');
-                    siteDescription.classList.add('hidden-description');
-                    toggleButton.textContent = '﹀';
-                } else {
-                    siteDescription.classList.remove('hidden-description');
-                    siteDescription.classList.add('visible-description');
-                    toggleButton.textContent = '︿';
-                }
-            });
-
-            // 스크롤 시 제목 고정 기능
-            const stickyHeader = document.getElementById('sticky-header');
-            const mainTitle = document.querySelector('h1');
-            const progressBarFill = document.getElementById('progress-bar-fill');
-
-            window.addEventListener('scroll', function () {
-                const titleBottom = mainTitle.getBoundingClientRect().bottom;
-
-                // sticky-header 보이기
-                if (titleBottom <= 0) {
-                    stickyHeader.classList.add('visible');
-                } else {
-                    stickyHeader.classList.remove('visible');
-                }
-
-                // 스크롤 위치에 따른 진행 바 색상 변화
-                const scrollPosition = window.scrollY;
-                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const progress = (scrollPosition / docHeight) * 100;
-                progressBarFill.style.width = `${progress}%`;
-            });
-
-            // 상단 제목 클릭 시 페이지 상단으로 스크롤
-            const stickyHeaderTitle = document.getElementById('sticky-header');
-            stickyHeaderTitle.addEventListener('click', function () {
-                window.scrollTo(0, 0);
-            });
-        });
-    </script>
-
 </body>
 </html>
 
