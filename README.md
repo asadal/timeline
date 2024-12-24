@@ -19,7 +19,7 @@ sudo apt install postgresql postgresql-contrib
 
 ## 필요한 패키지 설치
 ```
-npm install express sqlite3 body-parser ejs multer csv-parser pg
+npm install express sqlite3 body-parser ejs multer csv-parser pg moment-timezone
 ```
 
 ## 폴더 구조 설정

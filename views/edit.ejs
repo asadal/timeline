@@ -17,11 +17,12 @@
             <form action="/admin/edit/<%= timeline.id %>" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="currentImage" value="<%= timeline.image %>">
                 <input type="hidden" name="currentLink" value="<%= timeline.link %>">
+                
                 <div class="mb-4">
                     <label for="datetime" class="block text-gray-700">날짜 및 시간</label>
                     <!-- 날짜 및 시간 필드 -->
                     <input type="datetime-local" id="datetime" name="datetime" 
-                        value="<%= new Date(timeline.date).toISOString().slice(0, 16) %>" 
+                        value="<%= timeline.seoulDateTime %>" 
                         required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
                 </div>
                 <div class="mb-4">

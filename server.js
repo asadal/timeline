@@ -27,6 +27,7 @@ app.use(session({
 // 미들웨어
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 
 // 파일 업로드 설정
@@ -106,14 +107,20 @@ app.get('/admin', async (req, res) => {
     }
 });
 
+const moment = require('moment-timezone');
+
 // 타임라인 항목 추가
 app.post('/admin/add', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, external_image, show_time } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : external_image || '';
+
+    // 서울 시간(GMT+9)으로 변환
+    const seoulDatetime = moment.tz(datetime, "Asia/Seoul").format('YYYY-MM-DD HH:mm:ss');
+
     try {
         await pool.query(
             `INSERT INTO timeline (date, title, body, image, link, show_time) VALUES ($1, $2, $3, $4, $5, $6)`,
-            [datetime.replace('T', ' '), title, body, image, link || '', show_time ? 1 : 0]
+            [seoulDatetime, title, body, image, link || '', show_time ? 1 : 0]
         );
         res.redirect('/admin');
     } catch (err) {
@@ -126,10 +133,14 @@ app.post('/admin/add', upload.single('image'), async (req, res) => {
 app.post('/admin/edit/:id', upload.single('image'), async (req, res) => {
     const { datetime, title, body, link, external_image, show_time } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : external_image || '';
+
+    // 서울 시간(GMT+9)으로 변환
+    const seoulDatetime = moment.tz(datetime, "Asia/Seoul").format('YYYY-MM-DD HH:mm:ss');
+
     try {
         await pool.query(
             `UPDATE timeline SET date = $1, title = $2, body = $3, link = $4, image = $5, show_time = $6 WHERE id = $7`,
-            [datetime.replace('T', ' '), title, body, link || '', image, show_time ? 1 : 0, req.params.id]
+            [seoulDatetime, title, body, link || '', image, show_time ? 1 : 0, req.params.id]
         );
         res.redirect('/admin');
     } catch (err) {
@@ -179,7 +190,13 @@ app.get('/admin/edit/:id', async (req, res) => {
         if (!result.rows.length) {
             return res.status(404).send('타임라인 항목을 찾을 수 없습니다.');
         }
-        res.render('edit', { timeline: result.rows[0] });
+
+        const item = result.rows[0];
+
+        // 날짜와 시간을 서울 시간(GMT+9)으로 변환
+        const seoulDateTime = moment.tz(item.date, "Asia/Seoul").format('YYYY-MM-DDTHH:mm'); // datetime-local 형식
+
+        res.render('edit', { timeline: { ...item, seoulDateTime } });
     } catch (err) {
         console.error('Error fetching timeline entry:', err.message);
         res.status(500).send('Database error');
