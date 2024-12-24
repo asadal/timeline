@@ -57,20 +57,9 @@
     font-weight: 300; /* 300으로 설정 */
 }
 
-/* 타임라인 항목 제목 폰트 크기와 스타일 */
-.timeline-title {
-    font-size: 30px; /* 크기 30px으로 설정 */
-    font-weight: 300;
-}
-
 /* Noto Sans KR 폰트 적용 */
 .font-noto {
     font-family: 'Noto Sans KR', sans-serif;
-}
-
-/* 웹사이트 설명 숨기기 */
-.hidden {
-    display: none;
 }
 
 /* 고정 헤더 애니메이션 */
@@ -96,13 +85,14 @@
     margin: 0 auto;
 }
 
-/* 타임라인 선 및 날짜 색상 */
-.timeline-line {
-    border-left: 3px solid #727272; /* 진한 회색 선 */
+/* Top 버튼 위치 */
+.top-button {
+    bottom: 70px; /* Top 버튼은 아래쪽으로 내려서 배치 */
 }
 
-.time {
-    color: #727272; /* 날짜 텍스트의 색상을 더 진하게 설정 */
+/* Bottom 버튼 위치 */
+.bottom-button {
+    bottom: 20px; /* Bottom 버튼은 위에서 50px 더 내려서 배치 */
 }
 
 /* 버튼 스타일 */
@@ -124,14 +114,10 @@
     background-color: #3182CE; /* 버튼 호버 색상 */
 }
 
-/* Top 버튼 위치 */
-.top-button {
-    bottom: 70px; /* Top 버튼은 아래쪽으로 내려서 배치 */
-}
-
-/* Bottom 버튼 위치 */
-.bottom-button {
-    bottom: 20px; /* Bottom 버튼은 위에서 50px 더 내려서 배치 */
+/* 웹사이트 설명 박스 고정 가로폭 800px */
+.description-box {
+    width: 800px; /* 800px 고정 */
+    margin: 0 auto; /* 가운데 정렬 */
 }
 
 /* 웹사이트 설명 텍스트 양쪽 정렬 */
@@ -139,10 +125,23 @@
     text-align: center;
 }
 
-/* 웹사이트 설명 박스 고정 가로폭 800px */
-.description-box {
-    width: 800px; /* 800px 고정 */
-    margin: 0 auto; /* 가운데 정렬 */
+/* 웹사이트 설명 숨기기 */
+.hidden {
+    display: none;
+}
+
+/* 설명 박스 숨김 상태 */
+.hidden-description {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+/* 설명 박스 표시 상태 */
+.visible-description {
+    max-height: 500px; /* 충분히 큰 값으로 설정 */
+    overflow: hidden;
+    transition: max-height 0.3s ease-in;
 }
 
 /* '더 알아보기' 버튼 */
@@ -161,71 +160,9 @@
     color: white;
 }
 
-/* 타임라인 아이템 본문 */
-.timeline-body {
-    font-size: 1.1rem;
-    color: #4A5568; /* 본문 텍스트 색상 */
-}
-
-/* 상단 고정 제목 바 스타일 */
-.sticky-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(255, 255, 255, 0.7); /* 70% 투명도 */
-    backdrop-filter: blur(10px); /* 배경 흐림 효과 */
-    z-index: 1000; /* sticky header가 다른 요소 위에 표시되도록 */
-    display: none; /* 기본적으로 숨김 */
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-}
-
-.sticky-header.visible {
-    display: flex; /* 스크롤 시 나타나도록 설정 */
-}
-
 /* 페이지 내용 스타일 */
 .page-content {
     margin-top: 80px; /* 상단 고정 바를 가리지 않도록 공간 확보 */
-}
-
-/* 설명 박스 숨김 상태 */
-.hidden-description {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-/* 설명 박스 표시 상태 */
-.visible-description {
-    max-height: 500px; /* 충분히 큰 값으로 설정 */
-    overflow: hidden;
-    transition: max-height 0.3s ease-in;
-}
-
-/* 타임라인 선 스타일 */
-.timeline-line {
-    position: absolute;
-    width: 3px;
-    height: 100%;
-    background-color: #d1d5db; /* 기본적으로 밝은 회색 */
-    transition: background-color 0.3s ease;
-}
-
-/* 타임라인 선이 짙은 회색으로 변경되는 클래스 */
-.line-active {
-     background-color: #4b5563; /* 더 짙은 회색 */
-}
-
-/* 타임라인 제목 */
-.timeline-title {
-    font-size: 30px; /* 제목 크기 30px */
-    font-weight: 700;
-    color: #1A202C; /* 진한 텍스트 색상 */
 }
 
 /* 상단 고정 제목 바 스타일 */
@@ -267,27 +204,7 @@
     width: 0%; /* 초기값 */
     transition: width 0.3s ease-out; /* 부드러운 애니메이션 */
 }
-
-/* 페이지 내용 스타일 */
-.page-content {
-    margin-top: 80px; /* 상단 고정 바를 가리지 않도록 공간 확보 */
-}
-
-/* 타임라인 항목 제목 폰트 크기 30px */
-.timeline-title {
-    font-size: 30px; /* 제목 크기 30px로 수정 */
-}
-
-/* 웹사이트 제목 스타일 */
-.site-title {
-    font-family: 'GmarketSans', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #333;
-    cursor: pointer;
-    text-decoration: none;
-}
-        
+      
 /* 웹사이트 설명 박스 고정 가로폭 및 반응형 설정 */
 .description-box {
     width: 100%; /* 화면 너비에 맞춰 자동 조정 */
