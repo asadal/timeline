@@ -21,7 +21,7 @@
             <%= settings.site_title %> <!-- 웹사이트 제목 -->
         </a>
     </div>
-    
+
     <!-- 웹사이트 제목 및 설명 -->
     <div id="top" class="max-w-[800px] mx-auto px-4 mt-12">
         <div class="text-center mb-4">
@@ -29,7 +29,7 @@
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 font-gmarket">
                 <%= settings.site_title %>
             </h1>
-            
+
             <!-- 설명 부분 -->
             <div class="mt-8 mb-8 flex flex-col items-center justify-center">
                 <div id="description-box" class="description-box border p-4 bg-gray-50 rounded-md">
@@ -61,7 +61,7 @@
                             <%= item.title %>
                         </h3>
 
-                        <p class="mb-4 text-lg font-normal text-gray-500 font-noto"><%= item.body %></p>
+                        <p class="mb-4 text-lg font-normal text-gray-500 font-noto"><%- item.body %></p>
                         <% if (item.image) { %>
                             <% if (item.image.includes('youtube.com') || item.image.includes('youtu.be')) { %>
                                 <!-- 유튜브 동영상 URL이면 iframe으로 임베딩 -->
@@ -148,4 +148,3 @@
 
 </body>
 </html>
-
