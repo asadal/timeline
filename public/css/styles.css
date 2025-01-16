@@ -2,8 +2,9 @@
 
 /* GmarketSansMedium 폰트 정의 */
 @font-face {
-    font-family: 'GmarketSansMedium';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-family: "GmarketSansMedium";
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+        format("woff");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -11,15 +12,32 @@
 
 /* GmarketSansBold 폰트 정의 */
 @font-face {
-    font-family: 'GmarketSansBold';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-family: "GmarketSansBold";
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff")
+        format("woff");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 
+/* Paperlogy 폰트 정의 */
+@font-face {
+    font-family: 'Paperlogy-7Bold';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy-5Medium';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
 /* 폰트 적용을 위한 커스텀 클래스 */
-.custom-input, .custom-textarea {
+.custom-input,
+.custom-textarea {
     border: 2px solid #34d399; /* Tailwind's green-500 */
     border-radius: 0.5rem; /* Tailwind's rounded-md */
     padding: 0.5rem 1rem; /* Tailwind's px-4 py-2 */
@@ -27,7 +45,8 @@
     font-size: 1rem; /* 폰트 크기 조절 */
 }
 
-.custom-input:focus, .custom-textarea:focus {
+.custom-input:focus,
+.custom-textarea:focus {
     border-color: #10b981; /* Tailwind's green-600 */
     outline: none;
 }
@@ -37,8 +56,10 @@
     color: #ffffff; /* 흰색 텍스트 */
     padding: 0.5rem 1rem; /* Tailwind's px-4 py-2 */
     border-radius: 0.5rem; /* Tailwind's rounded-md */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'GmarketSansMedium', sans-serif; /* 버튼 폰트 변경 */
+    transition:
+        background-color 0.3s ease,
+        box-shadow 0.3s ease;
+    font-family: "GmarketSansMedium", sans-serif; /* 버튼 폰트 변경 */
 }
 
 .custom-button:hover {
@@ -47,24 +68,38 @@
 
 /* Gmarket Sans Title 폰트 적용 */
 .font-gmarket-title {
-    font-family: 'GmarketSansBold', sans-serif;
+    font-family: "GmarketSansBold", sans-serif;
     font-weight: 300; /* 300으로 설정 */
 }
 
 /* Gmarket Sans 폰트 적용 */
 .font-gmarket {
-    font-family: 'GmarketSansMedium', sans-serif;
+    font-family: "GmarketSansMedium", sans-serif;
     font-weight: 300; /* 300으로 설정 */
 }
 
 /* Noto Sans KR 폰트 적용 */
 .font-noto {
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: "Noto Sans KR", sans-serif;
+}
+
+/* Paperlogy Bold 폰트 적용 */
+.font-paperlogy-bold {
+    font-family: "Paperlogy-7Bold", sans-serif;
+    font-weight: 700; /* 700으로 설정 */
+}
+
+/* Paperlogy Medium 폰트 적용 */
+.font-paperlogy-medium {
+    font-family: "Paperlogy-5Medium", sans-serif;
+    font-weight: 500; /* 500으로 설정 */
 }
 
 /* 고정 헤더 애니메이션 */
 .fixed-header {
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
 }
 
 .fixed-header.hidden {
@@ -111,7 +146,7 @@
 }
 
 .scroll-button:hover {
-    background-color: #3182CE; /* 버튼 호버 색상 */
+    background-color: #3182ce; /* 버튼 호버 색상 */
 }
 
 /* 웹사이트 설명 박스 고정 가로폭 800px */
@@ -146,17 +181,17 @@
 
 /* '더 알아보기' 버튼 */
 .inline-flex {
-    border: 1px solid #00ADA7; /* 테두리 색상 */
+    border: 1px solid #00ada7; /* 테두리 색상 */
     padding: 8px 15px;
     border-radius: 20px;
     background-color: transparent;
-    color: #00ADA7;
+    color: #00ada7;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .inline-flex:hover {
-    background-color: #00ADA7;
+    background-color: #00ada7;
     color: white;
 }
 
@@ -200,11 +235,11 @@
 
 .progress-bar-fill {
     height: 100%;
-    background-color: rgba(212, 213, 213, 0.3); /* 30% 투명도를 적용한 색상 */
+    background-color: rgba(228, 228, 228, 0.3); /* 30% 투명도를 적용한 색상 */
     width: 0%; /* 초기값 */
     transition: width 0.3s ease-out; /* 부드러운 애니메이션 */
 }
-      
+
 /* 웹사이트 설명 박스 고정 가로폭 및 반응형 설정 */
 .description-box {
     width: 100%; /* 화면 너비에 맞춰 자동 조정 */
