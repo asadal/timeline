@@ -86,13 +86,11 @@
 /* Paperlogy Bold 폰트 적용 */
 .font-paperlogy-bold {
     font-family: "Paperlogy-7Bold", sans-serif;
-    font-weight: 700; /* 700으로 설정 */
 }
 
 /* Paperlogy Medium 폰트 적용 */
 .font-paperlogy-medium {
     font-family: "Paperlogy-5Medium", sans-serif;
-    font-weight: 500; /* 500으로 설정 */
 }
 
 /* 고정 헤더 애니메이션 */
