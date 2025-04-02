@@ -1,0 +1,10 @@
+postgresql
+postgresql-contrib
+express
+sqlite3
+body-parser
+ejs
+multer
+csv-parser
+pg moment-timezone
+dotenv
